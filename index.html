@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+    <div id="root" class="row">
+        <div class="column producer">
+            <h2>Local (produced) video</h2>
+            <p>This video is expected to have quality of video capture from camera.</p>
+            <video playsinline autoplay muted />
+        </div>
+        <div class="column consumer">
+            <h2>"Remote" (consumed) video.</h2>
+            <p>Due to bug in Firefox implementation of WebRTC this video will have much worse quality that captured from camera.</p>
+            <video playsinline autoplay />
+        </div>
+    </div>
+    <script src="js/main.js" async></script>
+</body>
+
+</html>
