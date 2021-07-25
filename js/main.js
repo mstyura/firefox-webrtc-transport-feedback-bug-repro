@@ -15,6 +15,15 @@ consumerPC.addEventListener("icecandidate", async (event) => {
 console.log("producer video", producerVideo, ", consumer pc ", consumerPC);
 console.log("consumer video", consumerVideo, ", producer pc ", producerPC);
 
+const removeTransportCc = (sdp) => {
+    return { type: sdp.type,
+             sdp: sdp
+                .sdp
+                .split("\r\n")
+                .filter(line => !(line.includes("transport-cc") || line.includes("http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01")))
+                .join("\r\n") }
+}  
+
 const reproduceLowQualityVideo = async () => {
     console.log("Will reproduce underestimated bandwidth issue");
 
@@ -50,7 +59,18 @@ const reproduceLowQualityVideo = async () => {
         direction: "inactive",
     });
 
-    await producerPC.setLocalDescription();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('no-transport-cc')) {
+        const offer = await producerPC.createOffer();
+        console.log("Original producer offer: ", offer.sdp);
+        const patchedOffer = removeTransportCc(offer);
+        console.log("Patched producer offer: ", patchedOffer.sdp);
+        await producerPC.setLocalDescription(patchedOffer);
+    } else {
+        await producerPC.setLocalDescription();
+    }
+
+    console.log("Producer local description:", producerPC.localDescription.sdp);
     await consumerPC.setRemoteDescription(producerPC.localDescription);
     await consumerPC.setLocalDescription();
     await producerPC.setRemoteDescription(consumerPC.localDescription);
